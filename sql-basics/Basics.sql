@@ -485,20 +485,105 @@ where Profit < 1000;
 
 
 
+-- ---------------Joins-----------
+-- Inner Joins
+select * from prod_dimen;
+select * from market_fact_full;
+select Ord_id, Product_Category, Product_Sub_Category, Profit
+from prod_dimen p inner join market_fact_full m
+on p.Prod_id= m.Prod_id;
+
+
+select * from shipping_dimen;
+select * from market_fact_full;
+
+select  Ord_id, Ship_Mode,Profit
+from market_fact_full m inner join shipping_dimen s
+on m.Ship_id = s.Ship_id;
+
+-- 3 way joins
+select * from prod_dimen;
+select m.Prod_id, m.Profit,p.Product_Category, s.Ship_Mode
+from market_fact_full m inner join prod_dimen p on m.Prod_id=p.Prod_id
+inner join shipping_dimen s on m.Ship_id=s.Ship_id;
+
+-- which customer ordered the most no of products
+
+select * from cust_dimen;
+select * from market_fact_full;
+select Customer_Name, sum(Order_Quantity) as Total_Ordered_Products
+from cust_dimen c inner join market_fact_full m
+on c.Cust_id=m.Cust_id
+group by Customer_Name
+order by Total_Ordered_Products desc
+limit 1;
+
+-- Selling office supplies in delhi was more profitable than in patna.True or False?
+
+select * from cust_dimen;
+select * from market_fact_full;
+select * from prod_dimen;
+
+select Product_Category, City,sum(Profit) as Total_Profit
+from prod_dimen p inner join market_fact_full m
+on p.Prod_id=m.Prod_id
+inner join cust_dimen c
+on m.Cust_id=c.Cust_id
+where Product_Category='Office Supplies' and (City='Delhi' or City='Patna')
+group by City, Product_Category;
+
+-- Print the name of the customer with max no of orders
+select * from cust_dimen;
+select * from market_fact_full;
+
+select Customer_Name, count(Customer_Name) as Total_Orders
+from cust_dimen c inner join market_fact_full m
+on c.Cust_id = m.Cust_id
+group by Customer_Name
+order by Total_Orders desc
+limit 1;
+
+-- -------Outer Joins-------
+select * from manu;
+select * from prod_dimen; 
+
+select distinct Manu_id from prod_dimen;
+
+-- Checking with inner join 
+select  m.Manu_Name,p.Prod_id
+from manu m inner join prod_dimen p 
+on m.Manu_id = p.Manu_id;
+
+-- Checking with left join
+select  Manu_Name,Prod_id
+from manu m left join prod_dimen p 
+on m.Manu_id = p.Manu_id;
+
+select * from manu;
+select * from prod_dimen;
+-- How many manufacturers are there who are not not supplying any products
+select m.Manu_Name, count(Prod_id) as Total_Products_Sold
+from manu m left join prod_dimen p 
+on m.Manu_id = p.Manu_id
+group by m.Manu_Name;
+ 
+-- ------------Union-------------- 
+-- Two Most Profitable and Non Profitable Products
+select * from market_fact_full;
+
+(select Prod_id,sum(Profit)
+from market_fact_full
+group by Prod_id
+order by sum(Profit) desc
+limit 2)
+union
+(select Prod_id,sum(Profit)
+from market_fact_full
+group by Prod_id
+order by sum(Profit)
+limit 2
+);
   
 
 
 
-
-delete from shipping_mode_dimen
-where football_team= 'Liverpool';
-alter table shipping_mode_dimen
-drop column football_team;
-
-delete from shipping_mode_dimen
-where Ship_Mode='By Road';
-
-delete from shipping_mode_dimen
-where Ship_Mode='Waterways';
-
-select * from shipping_mode_dimen
